@@ -8,7 +8,7 @@ Created on Sat Oct 11 14:53:39 2025
 import streamlit as st
 import cv2
 import numpy as np
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, RTCConfiguration
 import threading
 import os
 import requests
@@ -130,7 +130,17 @@ st.markdown("Arahkan wajah Anda ke webcam untuk melihat keajaiban AI secara *rea
 col1, col2 = st.columns(spec=[3, 1])
 with col1:
     st.header("Streaming Webcam")
-    webrtc_ctx = webrtc_streamer(key="face-detection", video_processor_factory=FaceDetector, media_stream_constraints={"video": True, "audio": False}, rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
+    webrtc_ctx = webrtc_streamer(
+    key="face-detection",
+    video_processor_factory=FaceDetector,
+    media_stream_constraints={"video": True, "audio": False},
+    rtc_configuration={
+        "iceServers": [
+            {"urls": ["stun:stun.l.google.com:19302"]},
+            {"urls": ["turn:numb.viagenie.ca"], "username": "webrtc", "credential": "turnpassword"}
+        ]
+    }
+)
 with col2:
     st.header("Hasil Analisis")
     face_count_placeholder = st.empty()
@@ -157,4 +167,5 @@ with col2:
         else:
             break
 st.sidebar.title("Tentang Aplikasi")
+
 st.sidebar.info("Ini adalah aplikasi web yang dibangun dengan Streamlit untuk mendemonstrasikan kemampuan Computer Vision dalam mendeteksi wajah, usia, gender, dan emosi secara real-time menggunakan model-model AI dari OpenCV.")
