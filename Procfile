@@ -1,0 +1,1 @@
+web: sh setup.sh && streamlit run webapp_face_detection.py
