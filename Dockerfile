@@ -22,7 +22,7 @@ COPY . .
 ENV PORT=8501
 
 # Jalankan Streamlit dengan konfigurasi Railway
-CMD streamlit run webapp_face_detection.py \
+CMD streamlit run webapp_upload.py \
     --server.port=$PORT \
     --server.address=0.0.0.0 \
     --server.headless=true \
