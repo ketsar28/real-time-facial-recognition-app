@@ -147,13 +147,16 @@ def process_uploaded_image(uploaded_file):
     """Memproses gambar yang diupload user."""
     # Baca gambar
     image = Image.open(uploaded_file)
+    
+    # CRITICAL FIX: Convert to RGB (remove alpha channel if exists)
+    # Model Caffe expects 3 channels, not 4 (RGBA)
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    
     img_array = np.array(image)
     
     # Convert RGB ke BGR (OpenCV format)
-    if len(img_array.shape) == 3 and img_array.shape[2] == 3:
-        img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
-    else:
-        img_bgr = img_array
+    img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
     
     # Deteksi wajah
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
@@ -283,7 +286,7 @@ if uploaded_file is not None:
     with col1:
         st.subheader("🖼️ Hasil Deteksi")
         processed_img, results = process_uploaded_image(uploaded_file)
-        st.image(processed_img, use_column_width=True, caption="Gambar dengan Deteksi AI")
+        st.image(processed_img, use_container_width=True, caption="Gambar dengan Deteksi AI")
     
     with col2:
         st.subheader("📊 Analisis")
