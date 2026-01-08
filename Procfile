@@ -1,1 +1,1 @@
-web: streamlit run webapp_face_detection.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --browser.serverAddress="0.0.0.0"
+web: streamlit run webapp_upload.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --browser.serverAddress="0.0.0.0"
