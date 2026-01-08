@@ -214,13 +214,22 @@ def process_uploaded_image(uploaded_file):
             except Exception:
                 pass
         
-        # Gambar kotak & label
-        cv2.rectangle(img_bgr, (x, y), (x+w, y+h), (0, 255, 255), 3)
+        # Gambar kotak & label dengan warna KONTRAS TINGGI
+        # Kotak: Merah tebal (lebih jelas di semua background)
+        cv2.rectangle(img_bgr, (x, y), (x+w, y+h), (0, 0, 255), 4)
+        
         conf_str = f"({age_conf*100:.0f}%)" if age != "Unknown" else ""
         label_top = f"{gender}, {age} {conf_str}"
         label_bottom = f"{emotion}"
-        cv2.putText(img_bgr, label_top, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-        cv2.putText(img_bgr, label_bottom, (x, y + h + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+        
+        # Text: Putih dengan outline hitam tebal (readable di semua background)
+        # Top label (Gender + Age)
+        cv2.putText(img_bgr, label_top, (x, y - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 5)  # Black outline
+        cv2.putText(img_bgr, label_top, (x, y - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)  # White fill
+        
+        # Bottom label (Emotion)
+        cv2.putText(img_bgr, label_bottom, (x, y + h + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 5)  # Black outline
+        cv2.putText(img_bgr, label_bottom, (x, y + h + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)  # White fill
         
         results.append({
             "gender": gender,
@@ -231,6 +240,16 @@ def process_uploaded_image(uploaded_file):
     
     # Convert kembali ke RGB
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+    
+    # Resize gambar output jika terlalu besar (max width 700px untuk readability)
+    height, width = img_rgb.shape[:2]
+    max_width = 700
+    if width > max_width:
+        scale = max_width / width
+        new_width = max_width
+        new_height = int(height * scale)
+        img_rgb = cv2.resize(img_rgb, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    
     return img_rgb, results
 
 # --- UI STREAMLIT ---
