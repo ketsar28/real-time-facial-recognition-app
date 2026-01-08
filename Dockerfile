@@ -1,21 +1,29 @@
-# Gunakan base image python (sesuaikan dengan versi python computer offline)
-FROM python:3.13-slim
+# Base image: Python 3.10 (kompatibel dengan aiortc/WebRTC)
+FROM python:3.10-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Install system dependencies untuk OpenCV & PyAV
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements & install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy semua file
+# Copy semua file aplikasi
 COPY . .
 
-# Debug isi folder
-RUN ls -lh /app
+# Railway menyediakan $PORT variable, jadi kita HARUS pakai port dinamis
+# Default ke 8501 kalau $PORT ga ada (untuk local testing)
+ENV PORT=8501
 
-# Expose port untuk Streamlit
-EXPOSE 8501
-
-# Jalankan streamlit
-CMD ["streamlit", "run", "webapp_face_detection.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Jalankan Streamlit dengan konfigurasi Railway
+CMD streamlit run webapp_face_detection.py \
+    --server.port=$PORT \
+    --server.address=0.0.0.0 \
+    --server.headless=true \
+    --browser.serverAddress="0.0.0.0"
